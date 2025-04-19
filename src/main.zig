@@ -18,8 +18,8 @@ pub fn main() !void {
         .port = 8250,
         .address = "0.0.0.0",
         .handshake = .{
-            .timeout = 3,
-            .max_size = 1024,
+            .timeout = 300,
+            .max_size = 65535,
             .max_headers = 0,
         },
     });
@@ -65,7 +65,15 @@ fn spinningWriter(conn: *ws.Conn) !void {
     std.log.info("spawned writer thread.", .{});
     while (true) {
         try stdout.print("Input: (use \"%\" for end of message)\n", .{});
-        const buffer = try stdin.readUntilDelimiterAlloc(allocator, '%', 4096);
+
+        const buffer = stdin.readUntilDelimiterAlloc(allocator, '%', 4096) catch {
+            break;
+        };
+        defer allocator.free(buffer);
+
         try conn.write(buffer);
     }
+
+    std.log.info("closing connection.", .{});
+    try conn.close(.{});
 }
