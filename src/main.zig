@@ -66,7 +66,7 @@ fn spinningWriter(conn: *ws.Conn) !void {
     while (true) {
         try stdout.print("Input: (use \"%\" for end of message)\n", .{});
 
-        const buffer = stdin.readUntilDelimiterAlloc(allocator, '%', 4096) catch {
+        const buffer = stdin.readUntilDelimiterAlloc(allocator, '%', 65535) catch {
             break;
         };
         defer allocator.free(buffer);
